@@ -61,8 +61,7 @@ class DisjointSet {
 
 
 
-public class Main {
-
+class Main {
 
     //https://stepik.org/lesson/41560/step/3?unit=20013
     public static void main(String[] args) {
