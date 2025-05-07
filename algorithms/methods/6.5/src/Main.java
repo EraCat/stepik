@@ -1,80 +1,91 @@
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Random;
 
 public class Main {
 
-    static long counter  = 0;
+    private static final Random Random = new Random();
 
-    //https://stepik.org/lesson/13248/step/5?unit=3433
+    //https://stepik.org/lesson/13249/step/6?unit=3434
     public static void main(String[] args) {
 
-        Scanner scanner = new Scanner(System.in);
-        int n = Integer.parseInt(scanner.nextLine());
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
+            String l = reader.readLine();
+            String[] s = l.split(" ");
+            int n = Integer.parseInt(s[0]);
+            int m = Integer.parseInt(s[1]);
 
-        counter = 0;
+            int[] starts = new int[n];
+            int[] ends = new int[n];
+            for (int i = 0; i < n; i ++) {
+                String[] split = reader.readLine().split(" ");
+                int ai = Integer.parseInt(split[0]);
+                int bi = Integer.parseInt(split[1]);
+                starts[i] = ai;
+                ends[i] = bi;
+            }
 
-        int[] A = new int[n];
-        for (int i = 0; i < n; i++) {
-            A[i] = scanner.nextInt();
+            quickSort(starts, 0, n - 1);
+            quickSort(ends, 0, n - 1);
+
+//            System.out.println(Arrays.toString(starts));
+//            System.out.println(Arrays.toString(ends));
+
+            for (String tmp : reader.readLine().split(" ")) {
+                int point = Integer.parseInt(tmp);
+                int a = findMaxLess(starts,  point);
+                if (a == -1) a = 0;
+                int b = findMaxLess(ends, point - 1);
+                if (b == -1) b = 0;
+
+                System.out.print(a - b + " ");
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-
-        int[] ints = mergeSort(A, 0, A.length - 1);
-
-        System.out.println(counter);
     }
 
-    // l - left index
-    // r - right !INDEX!
-    private static int[] mergeSort(int[] a, int l, int r) {
-        if (l < r) {
-            int m = (l + r) / 2;
-            return merge(mergeSort(a, l, m), mergeSort(a, m + 1, r));
-        }
-        return new int[] {a[l]};
-    }
-
-    private static int[] merge(int[] a1, int[] a2) {
-        int i1 = 0;
-        int i2 = 0;
-        int[] result = new int[a1.length + a2.length];
-        for (int i = 0; i < result.length; i++) {
-            if (i1 < a1.length && i2 < a2.length) {
-                if (a1[i1] <= a2[i2]) {
-                    result[i] = a1[i1];
-                    i1++;
-                } else {
-                    counter += a1.length - i1;
-                    result[i] = a2[i2];
-                    i2++;
-                }
-            } else if (i1 < a1.length) {
-                result[i]= a1[i1];
-                i1++;
+    private static int findMaxLess(int[] arr, int key) {
+        int l = 0;
+        int r = arr.length - 1;
+        while (l <= r) {
+            int m = l + (r - l) / 2;
+            if (arr[m] <= key) {
+                l = m + 1;
             } else {
-                result[i]= a2[i2];
-                i2++;
+                r = m - 1;
             }
         }
 
-        return result;
+        return l;
     }
 
+    private static void quickSort(int[] in, int left, int right) {
+        if (left >= right) return;
 
+        int m = partition(in, left, right);
+        quickSort(in, left, m - 1);
+        quickSort(in, m + 1, right);
+    }
 
-
-
-    private static int naive(int[] A) {
-        int counter = 0;
-
-        for (int i = 0; i < A.length; i++) {
-            for (int j = i + 1; j < A.length; j++) {
-                if (A[i] > A[j]) {
-                    counter++;
-                }
+    private static int partition(int[] in, int left, int right) {
+        int x = in[left];
+        int j = left;
+        for (int i = left + 1; i <= right; i++) {
+            if (in[i] < x) {
+                j++;
+                int tmp = in[i];
+                in[i] = in[j];
+                in[j] = tmp;
             }
         }
 
-        return counter;
+        int tmp = in[left];
+        in[left] = in[j];
+        in[j] = tmp;
+
+        return j;
     }
-
-
 }
