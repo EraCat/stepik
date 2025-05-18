@@ -24,8 +24,8 @@ class EditDistanceBU {
         for (int i = 1; i < D[0].length; i++) {
             for (int j = 1; j < D.length; j++) {
                 int insert = D[j][i - 1] + 1;
-                int delete = D[j-1][i] + 1;
-                int substitution = D[j-1][i - 1] + diff(A[i-1], B[j-1]); // a[i -1] and b[j-1] because i and j have offset in 1 cell
+                int delete = D[j - 1][i] + 1;
+                int substitution = D[j - 1][i - 1] + diff(A[i - 1], B[j - 1]); // a[i -1] and b[j-1] because i and j have offset in 1 cell
 
                 D[j][i] = Math.min(insert, Math.min(delete, substitution));
             }
@@ -36,6 +36,51 @@ class EditDistanceBU {
 
     private int diff(char a, char b) {
         return a == b ? 0 : 1;
+    }
+
+
+    public void printRestored() {
+        int m = D.length - 1;
+        int n = D[0].length - 1;
+
+        StringBuilder first = new StringBuilder();
+        StringBuilder second = new StringBuilder();
+
+        while (n > 0 || m > 0) {
+            if (n == 0) {
+                first.append("-");
+                second.append(B[m - 1]);
+                m--;
+            } else if (m == 0) {
+                first.append(A[n - 1]);
+                second.append("-");
+                n--;
+            } else {
+                int ins = D[m][n - 1] + 1;
+                int del = D[m - 1][n] + 1;
+                int sub = D[m - 1][n - 1] + diff(A[n - 1], B[m - 1]);
+
+                if (ins <= del && ins <= sub) {
+                    first.append("-");
+                    second.append(B[m - 1]);
+                    n--;
+                } else {
+                    if (del <= sub) {
+                        first.append("+");
+                        second.append(B[m - 1]);
+                        m--;
+                    } else {
+                        first.append("=");
+                        second.append(B[m - 1]);
+                        n--;
+                        m--;
+                    }
+                }
+            }
+        }
+
+        System.out.println(first.reverse());
+        System.out.println(second.reverse());
     }
 }
 
@@ -71,7 +116,7 @@ class EditDistanceTD {
         } else {
             int insert = editDistanceTD(i, j - 1) + 1;
             int delete = editDistanceTD(i - 1, j) + 1;
-            int sub = editDistanceTD(i - 1, j - 1) + diff(A[i-1], B[j-1]);
+            int sub = editDistanceTD(i - 1, j - 1) + diff(A[i - 1], B[j - 1]);
             D[i][j] = Math.min(insert, Math.min(delete, sub));
         }
 
@@ -105,5 +150,7 @@ public class Main {
 
         EditDistanceBU editDistanceBU = new EditDistanceBU(a.toCharArray(), b.toCharArray());
         System.out.println(editDistanceBU.run());
+
+        editDistanceBU.printRestored();
     }
 }
